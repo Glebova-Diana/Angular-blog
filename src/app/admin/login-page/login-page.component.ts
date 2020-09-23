@@ -13,10 +13,9 @@ export class LoginPageComponent implements OnInit {
 
   form: FormGroup;
   submitted = false;
-  minLengthNumber = 6;
 
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router
   ) {
   }
@@ -24,17 +23,17 @@ export class LoginPageComponent implements OnInit {
   ngOnInit(): void {
     this.form = new FormGroup({
       email: new FormControl(null, [
-        Validators.email,
-        Validators.required
-      ]),
-      pass: new FormControl(null, [
         Validators.required,
-        Validators.minLength(this.minLengthNumber)
+        Validators.email
+      ]),
+      password: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(6)
       ])
     });
   }
 
-  submit(): void {
+  submit() {
     if (this.form.invalid) {
       return;
     }
@@ -43,13 +42,16 @@ export class LoginPageComponent implements OnInit {
 
     const user: User = {
       email: this.form.value.email,
-      password: this.form.value.pass
+      password: this.form.value.password
     };
 
     this.auth.login(user).subscribe(() => {
       this.form.reset();
       this.router.navigate(['/admin', 'dashboard']);
       this.submitted = false;
+    }, () => {
+      this.submitted = false;
     });
   }
 }
+
