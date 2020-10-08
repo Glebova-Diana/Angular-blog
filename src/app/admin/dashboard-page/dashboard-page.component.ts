@@ -10,9 +10,10 @@ import {takeUntil, takeWhile} from 'rxjs/operators';
   styleUrls: ['./dashboard-page.component.scss']
 })
 export class DashboardPageComponent implements OnInit, OnDestroy {
-  posts: Post[];
+  posts: Post[] = [];
   postSubscription: Subscription;
   destroy$: Subject<boolean> = new Subject<boolean>();
+  searchStr = '';
 
   constructor(
     private postService: PostService
