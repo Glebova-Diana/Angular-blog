@@ -31,12 +31,13 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
-    // if (this.postSubscription) {
-    //   this.postSubscription.unsubscribe();
-    // }
   }
 
   removePost(id: string): void {
-
+    this.postService.remove(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.posts = this.posts.filter(post => post.id !== id);
+      });
   }
 }

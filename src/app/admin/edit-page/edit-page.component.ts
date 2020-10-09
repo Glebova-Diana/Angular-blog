@@ -1,15 +1,64 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
+import {PostService} from '../../shared/post.service';
+import {switchMap, takeUntil} from 'rxjs/operators';
+import {Post} from '../../shared/interfaces';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-edit-page',
   templateUrl: './edit-page.component.html',
   styleUrls: ['./edit-page.component.scss']
 })
-export class EditPageComponent implements OnInit {
+export class EditPageComponent implements OnInit, OnDestroy {
+  form: FormGroup;
+  post: Post;
+  isSubmitted = false;
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private postService: PostService
+  ) {
   }
 
+  ngOnInit(): void {
+    this.activatedRoute.params
+      .pipe(
+        switchMap((params: Params) => {
+          return this.postService.getById(params.id);
+        })
+      )
+      .subscribe((post: Post) => {
+        this.post = post;
+        this.form = new FormGroup({
+          title: new FormControl(post.title, Validators.required),
+          text: new FormControl(post.text, Validators.required)
+        });
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
+
+  update(): void {
+    if (this.form.invalid) {
+      return;
+    }
+
+    this.isSubmitted = true;
+
+    this.postService.update({
+      ...this.post,
+      title: this.form.value.title,
+      text: this.form.value.text
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.isSubmitted = false;
+      });
+  }
 }
