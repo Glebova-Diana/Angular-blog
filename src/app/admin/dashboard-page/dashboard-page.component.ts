@@ -3,6 +3,7 @@ import {PostService} from '../../shared/post.service';
 import {Post} from '../../shared/interfaces';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import {takeUntil, takeWhile} from 'rxjs/operators';
+import {AlertService} from '../shared/services/alert.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -16,7 +17,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   searchStr = '';
 
   constructor(
-    private postService: PostService
+    private postService: PostService,
+    private alert: AlertService
   ) {
   }
 
@@ -38,6 +40,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.posts = this.posts.filter(post => post.id !== id);
+        this.alert.warning('Post was removed');
       });
   }
 }

@@ -5,6 +5,7 @@ import {switchMap, takeUntil} from 'rxjs/operators';
 import {Post} from '../../shared/interfaces';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Subject} from 'rxjs';
+import {AlertService} from '../shared/services/alert.service';
 
 @Component({
   selector: 'app-edit-page',
@@ -19,7 +20,8 @@ export class EditPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private postService: PostService
+    private postService: PostService,
+    private alert: AlertService
   ) {
   }
 
@@ -44,7 +46,7 @@ export class EditPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  update(): void {
+  submit(): void {
     if (this.form.invalid) {
       return;
     }
@@ -59,6 +61,7 @@ export class EditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.isSubmitted = false;
+        this.alert.success('Post was updated');
       });
   }
 }
